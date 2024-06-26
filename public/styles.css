@@ -69,19 +69,25 @@ body {
     border: 1px solid #ddd;
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   
   li:nth-child(even) {
     background-color: #f4f4f4;
   }
   
-  a {
-    color: #4CAF50;
-    text-decoration: none;
+  button {
+    margin-left: 10px;
   }
   
-  a:hover {
-    text-decoration: underline;
+  button[type="button"] {
+    background-color: #f44336;
+  }
+  
+  button[type="button"]:hover {
+    background-color: #d32f2f;
   }
   
   .error-message {

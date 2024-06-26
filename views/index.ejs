@@ -9,51 +9,80 @@
 <body>
   <h1>Product List</h1>
   <form id="product-form">
+    <input type="hidden" id="product-index">
     <label for="name">Product Name:</label>
     <input type="text" id="name" name="name" required>
     <label for="price">Price:</label>
     <input type="number" id="price" name="price" step="0.01" required>
     <button type="submit">Add Product</button>
   </form>
-  <ul id="product-list">
-    <% products.forEach(product => { %>
-      <li><%= product.name %> - $<%= product.price %></li>
-    <% }) %>
-  </ul>
+  <ul id="product-list"></ul>
   <script>
-    document.addEventListener('DOMContentLoaded', (event) => {
+    document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('product-form');
       const productList = document.getElementById('product-list');
+      const productNameInput = document.getElementById('name');
+      const productPriceInput = document.getElementById('price');
+      const productIndexInput = document.getElementById('product-index');
 
-      // Load products from localStorage
-      const products = JSON.parse(localStorage.getItem('products')) || [];
+      let products = JSON.parse(localStorage.getItem('products')) || [];
 
-      // Render products
       const renderProducts = () => {
         productList.innerHTML = '';
-        products.forEach(product => {
+        products.forEach((product, index) => {
           const li = document.createElement('li');
-          li.textContent = `${product.name} - $${product.price}`;
+          li.innerHTML = `
+            ${product.name} - $${product.price}
+            <button onclick="editProduct(${index})">Edit</button>
+            <button onclick="deleteProduct(${index})">Delete</button>
+          `;
           productList.appendChild(li);
         });
       };
-      renderProducts();
 
-      // Handle form submission
+      const saveProducts = () => {
+        localStorage.setItem('products', JSON.stringify(products));
+        renderProducts();
+      };
+
+      window.editProduct = (index) => {
+        const product = products[index];
+        productNameInput.value = product.name;
+        productPriceInput.value = product.price;
+        productIndexInput.value = index;
+        form.querySelector('button').textContent = 'Update Product';
+      };
+
+      window.deleteProduct = (index) => {
+        products.splice(index, 1);
+        saveProducts();
+      };
+
       form.addEventListener('submit', (event) => {
         event.preventDefault();
-        const name = document.getElementById('name').value;
-        const price = document.getElementById('price').value;
+        const name = productNameInput.value;
+        const price = productPriceInput.value;
         if (!name || isNaN(price) || price <= 0) {
           alert('Please enter valid product details.');
           return;
         }
+
         const product = { name, price: parseFloat(price).toFixed(2) };
-        products.push(product);
-        localStorage.setItem('products', JSON.stringify(products));
-        renderProducts();
+        const index = productIndexInput.value;
+
+        if (index === '') {
+          products.push(product);
+        } else {
+          products[index] = product;
+          form.querySelector('button').textContent = 'Add Product';
+          productIndexInput.value = '';
+        }
+
+        saveProducts();
         form.reset();
       });
+
+      renderProducts();
     });
   </script>
 </body>
